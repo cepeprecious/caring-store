@@ -104,32 +104,131 @@
 						</div>
 					</div>
 
-					<form action="javascript: void(0);">
-                        <div class="form-group col-md-4 float-right">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <select id="string-picker">
-                                      <option value="3 Months">3 Months</option>
-                                      <option value="3 Years">3 Years</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-
 					<!-- <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
 						<i class="fa fa-calendar"></i>&nbsp;
 						<span></span> <i class="fa fa-caret-down"></i>
 					</div> -->
+					
+					<div class="col-xl-12 col-xxl-12 col-lg-12 col-md-12">
+						<div class="card">
+							<div class="card-header d-flex justify-content-between align-items-center">
+								<h4 class="card-title">Engagement</h4>
+							</div>
+							<div class="card-body">
+							    <div class="row">
+							        <div class="col-md-12 col-lg-6">
+							            <div class="d-flex flex-wrap justify-content-around">
+							                <form action="javascript: void(0);">
+                                                <div class="form-group">
+                                                    <label class="form-label">Year</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <select id="date-picker-2">
+                                                              <!--<option value="3 Months">3 Months</option>-->
+                                                              <!--<option value="3 Years">3 Years</option>-->
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <form action="javascript: void(0);">
+                                                <div class="form-group">
+                                                    <label class="form-label">Categories</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <select id="category-picker-2">
+                                                              <option value="0">All</option>
+                                                              <option value="1">Product Quality</option>
+                                                              <option value="2">Service Quality</option>
+                                                              <option value="3">Quality Management</option>
+                                                              <option value="4">Customer Loyalty</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+							            </div>
+							            <canvas id="accq_bar_2" style="width:100%;"></canvas>
+							        </div>
+							        <div class="col-md-12 col-lg-6">
+							            <div class="d-flex flex-wrap justify-content-around">
+							                <form action="javascript: void(0);">
+                                                <div class="form-group">
+                                                    <label class="form-label">Year</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <select id="date-picker-3">
+                                                              <!--<option value="3 Months">3 Months</option>-->
+                                                              <!--<option value="3 Years">3 Years</option>-->
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <form action="javascript: void(0);">
+                                                <div class="form-group">
+                                                    <label class="form-label">Categories</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <select id="category-picker-3">
+                                                              <option value="0">All</option>
+                                                              <option value="1">Product Quality</option>
+                                                              <option value="2">Service Quality</option>
+                                                              <option value="3">Quality Management</option>
+                                                              <option value="4">Customer Loyalty</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+							            </div>
+							            <canvas id="accq_bar_3" style="width:100%;"></canvas>
+							        </div>
+							    </div>
+							</div>
+						</div>
+					</div>
 
 					<div class="col-xl-12 col-xxl-12 col-lg-12 col-md-12">
 						<div class="card">
 							<div class="card-header d-flex justify-content-between align-items-center">
 								<h4 class="card-title">Engagement</h4>
-
 							</div>
-							<div class="card-body d-flex justify-content-center align-items-center">
-							<canvas id="accq_bar" style="width:100%;"></canvas>
+							<div class="card-body">
+							    <div class="d-flex flex-wrap justify-content-around">
+							        <form action="javascript: void(0);">
+                                        <div class="form-group">
+                                            <label class="form-label">Categories</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <select id="category-picker">
+                                                      <option value="0">All</option>
+                                                      <option value="1">Product Quality</option>
+                                                      <option value="2">Service Quality</option>
+                                                      <option value="3">Quality Management</option>
+                                                      <option value="4">Customer Loyalty</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+    							    <form action="javascript: void(0);">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <label class="form-label">Date</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <select id="date-picker">
+                                                          <option value="3 Months">3 Months</option>
+                                                          <option value="3 Years">3 Years</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+							    </div>
+							    <canvas id="accq_bar" style="width:100%;"></canvas>
 							</div>
 						</div>
 					</div>

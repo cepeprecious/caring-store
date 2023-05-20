@@ -43,8 +43,14 @@ class Administrator extends CI_Controller
 
 		$this->load->view('pages/register');
 	}
+	
 	public function login()
 	{
+		// Check if the user is already logged in
+		if ($this->session->userdata('logged_in')) {
+			redirect('dashboard');
+		}
+
 		$data['page'] = 'Login';
 
 		$this->load->view('pages/login');
@@ -109,7 +115,7 @@ class Administrator extends CI_Controller
 	
 
 	public function getAccEmotions(){
-		$query = $this->db->query("SELECT emotion, COUNT(*) AS emotion_count, COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage FROM tbl_emotions INNER JOIN tbl_questions on tbl_emotions.question_id = tbl_questions.question_id where tbl_questions.question_group = 1 GROUP BY emotion;");
+		$query = $this->db->query("SELECT archived, emotion, COUNT(*) AS emotion_count, COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage FROM tbl_emotions INNER JOIN tbl_questions on tbl_emotions.question_id = tbl_questions.question_id where tbl_questions.question_group = 1 AND archived != 1 GROUP BY emotion;");
 		$data = array();
 			foreach ($query->result() as $row)
 			{
@@ -124,7 +130,7 @@ class Administrator extends CI_Controller
 	}
 
 	public function getEmEmotions(){
-		$query = $this->db->query("SELECT emotion, COUNT(*) AS emotion_count, COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage FROM tbl_emotions INNER JOIN tbl_questions on tbl_emotions.question_id = tbl_questions.question_id where tbl_questions.question_group = 2 GROUP BY tbl_emotions.emotion;");
+		$query = $this->db->query("SELECT archived, emotion, COUNT(*) AS emotion_count, COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage FROM tbl_emotions INNER JOIN tbl_questions on tbl_emotions.question_id = tbl_questions.question_id where tbl_questions.question_group = 2 AND archived != 1 GROUP BY tbl_emotions.emotion;");
 		$data = array();
 			foreach ($query->result() as $row)
 			{
@@ -139,7 +145,7 @@ class Administrator extends CI_Controller
 	}
 
 	public function getResEmotions(){
-		$query = $this->db->query("SELECT emotion, COUNT(*) AS emotion_count, COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage FROM tbl_emotions INNER JOIN tbl_questions on tbl_emotions.question_id = tbl_questions.question_id where tbl_questions.question_group = 3 GROUP BY tbl_emotions.emotion;");
+		$query = $this->db->query("SELECT archived, emotion, COUNT(*) AS emotion_count, COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage FROM tbl_emotions INNER JOIN tbl_questions on tbl_emotions.question_id = tbl_questions.question_id where tbl_questions.question_group = 3 AND archived != 1 GROUP BY tbl_emotions.emotion;");
 		$data = array();
 			foreach ($query->result() as $row)
 			{
@@ -154,7 +160,7 @@ class Administrator extends CI_Controller
 	}
 
 	public function getLpEmotions(){
-		$query = $this->db->query("SELECT emotion, COUNT(*) AS emotion_count, COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage FROM tbl_emotions INNER JOIN tbl_questions on tbl_emotions.question_id = tbl_questions.question_id where tbl_questions.question_group = 4 GROUP BY tbl_emotions.emotion;");
+		$query = $this->db->query("SELECT archived, emotion, COUNT(*) AS emotion_count, COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage FROM tbl_emotions INNER JOIN tbl_questions on tbl_emotions.question_id = tbl_questions.question_id where tbl_questions.question_group = 4 AND archived != 1 GROUP BY tbl_emotions.emotion;");
 		$data = array();
 			foreach ($query->result() as $row)
 			{
@@ -174,7 +180,70 @@ class Administrator extends CI_Controller
 		
 	}
 	
-	public function getRecord($date_type) {
+	public function getYears() {
+		$query = $this->db->query("
+			SELECT DISTINCT YEAR(date) AS year
+			FROM tbl_emotions
+			GROUP BY year
+			ORDER BY year DESC;
+		");
+		$year = array();
+		foreach ($query->result() as $row) {
+		    array_push($year, $row->year);
+		}
+		$this->output->set_content_type('application/json')->set_output(json_encode($year));
+	}
+	
+	public function getArchivedQuestionsYear() {
+		$query = $this->db->query("
+			SELECT DISTINCT YEAR(created_date) AS year
+			FROM tbl_questions
+			WHERE `archived` = 1
+			GROUP BY year
+			ORDER BY year DESC;
+		");
+		$year = array();
+		foreach ($query->result() as $row) {
+		    array_push($year, $row->year);
+		}
+		$this->output->set_content_type('application/json')->set_output(json_encode($year));
+	}
+	
+	public function getYearRecord($year, $category) {
+		$question_group = "";
+		if ($category != '0') {
+			$question_group = "AND question_group = {$category}";
+		}
+		$query = $this->db->query("
+		SELECT
+		    YEAR(date) AS `date`, 
+			COALESCE(SUM(CASE WHEN emotion = 'angry' THEN 1 ELSE 0 END), 0) AS angry, 
+			COALESCE(SUM(CASE WHEN emotion = 'happy' THEN 1 ELSE 0 END), 0) AS happy, 
+			COALESCE(SUM(CASE WHEN emotion = 'sad' THEN 1 ELSE 0 END), 0) AS sad, 
+			(COALESCE(SUM(CASE WHEN emotion = 'angry' THEN 1 ELSE 0 END), 0) / 
+			COALESCE(SUM(CASE WHEN emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS angry_percentage, 
+			(COALESCE(SUM(CASE WHEN emotion = 'happy' THEN 1 ELSE 0 END), 0) / 
+			COALESCE(SUM(CASE WHEN emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS happy_percentage, 
+			(COALESCE(SUM(CASE WHEN emotion = 'sad' THEN 1 ELSE 0 END), 0) / 
+			COALESCE(SUM(CASE WHEN emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS sad_percentage 
+		FROM
+			tbl_emotions 
+		INNER JOIN 
+			tbl_questions 
+		ON 
+			tbl_emotions.question_id = tbl_questions.question_id 
+		WHERE 
+			YEAR(date) = {$year}
+			{$question_group}
+		GROUP BY 
+			YEAR(date) 
+		ORDER BY 
+			YEAR(date) DESC;
+		");
+		$this->output->set_content_type('application/json')->set_output(json_encode($query->result()));
+	}
+	
+	public function getRecord($date_type, $category) {
 		$order_by = "DESC";
 		$date_type = urldecode($date_type);
 		$date_format = 'm';
@@ -193,11 +262,15 @@ class Administrator extends CI_Controller
 		// return;
 
 		$date = new DateTime();
+        // Get Current Date 		
+        $date = $date->modify("first day of this {$date_type}");
 		$current_date = $date->format($date_format);
-		$date = new DateTime();
-		$prev_date = $date->modify("-1 {$date_type}")->format($date_format);
-		$date = new DateTime();
-		$prev2_date = $date->modify("-2 {$date_type}")->format($date_format);
+        // Get Prev Date		
+		$date = $date->modify("first day of this {$date_type}")->modify("previous {$date_type}");
+		$prev_date = $date->format($date_format);
+        // Get Prev Prev Date		
+		$date = $date->modify("first day of this {$date_type}")->modify("previous {$date_type}");
+		$prev2_date = $date->format($date_format);
 
 		$month = array(
 			"January", "February", "March",
@@ -207,31 +280,74 @@ class Administrator extends CI_Controller
 		);
 	    
 	    $data = array();	
-		$query = $this->db->query("
-		SELECT 
-			{$date_type}, 
-			COALESCE(SUM(CASE WHEN emotion = 'angry' THEN 1 ELSE 0 END), 0) AS angry, 
-			COALESCE(SUM(CASE WHEN emotion = 'happy' THEN 1 ELSE 0 END), 0) AS happy, 
-			COALESCE(SUM(CASE WHEN emotion = 'sad' THEN 1 ELSE 0 END), 0) AS sad, 
-			(COALESCE(SUM(CASE WHEN emotion = 'angry' THEN 1 ELSE 0 END), 0) / 
-			COALESCE(SUM(CASE WHEN emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS angry_percentage, 
-			(COALESCE(SUM(CASE WHEN emotion = 'happy' THEN 1 ELSE 0 END), 0) / 
-			COALESCE(SUM(CASE WHEN emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS happy_percentage, 
-			(COALESCE(SUM(CASE WHEN emotion = 'sad' THEN 1 ELSE 0 END), 0) / 
-			COALESCE(SUM(CASE WHEN emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS sad_percentage 
-		FROM 
-			(SELECT {$date_type}(date) AS {$date_type} FROM tbl_emotions 
-		UNION 
-			SELECT {$current_date} UNION SELECT {$prev_date} UNION SELECT {$prev2_date}) {$date_type}s 
-		LEFT JOIN 
-			tbl_emotions 
-		ON 
-			{$date_type}(tbl_emotions.date) = {$date_type}s.{$date_type} 
-		GROUP BY 
-			{$date_type} 
-		ORDER BY 
-			{$date_type} {$order_by};
-		");
+	    
+	    if ($category != "0") {
+    	    $query = $this->db->query("
+    		SELECT 
+                {$date_type}s.{$date_type}, 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'angry' THEN 1 ELSE 0 END), 0) AS angry, 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'happy' THEN 1 ELSE 0 END), 0) AS happy, 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'sad' THEN 1 ELSE 0 END), 0) AS sad, 
+                (COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'angry' THEN 1 ELSE 0 END), 0) / 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS angry_percentage, 
+                (COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'happy' THEN 1 ELSE 0 END), 0) / 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS happy_percentage, 
+                (COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'sad' THEN 1 ELSE 0 END), 0) / 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS sad_percentage 
+            FROM 
+                (SELECT {$current_date} AS {$date_type} FROM tbl_questions WHERE tbl_questions.question_group = {$category}
+                UNION 
+                SELECT {$prev_date} UNION SELECT {$prev2_date}) {$date_type}s 
+            LEFT JOIN 
+                tbl_emotions
+            ON 
+                {$date_type}(tbl_emotions.date) = {$date_type}s.{$date_type}
+                AND EXISTS (
+                    SELECT 1 
+                    FROM tbl_questions 
+                    WHERE tbl_questions.question_group = {$category}
+                    AND tbl_questions.question_id = tbl_emotions.question_id
+                )
+            GROUP BY 
+                {$date_type}s.{$date_type} 
+            ORDER BY 
+                {$date_type}s.{$date_type} {$order_by};
+            ");
+
+	    }
+	    else {
+    		$query = $this->db->query("
+    		SELECT 
+                {$date_type}s.{$date_type}, 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'angry' THEN 1 ELSE 0 END), 0) AS angry, 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'happy' THEN 1 ELSE 0 END), 0) AS happy, 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'sad' THEN 1 ELSE 0 END), 0) AS sad, 
+                (COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'angry' THEN 1 ELSE 0 END), 0) / 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS angry_percentage, 
+                (COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'happy' THEN 1 ELSE 0 END), 0) / 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS happy_percentage, 
+                (COALESCE(SUM(CASE WHEN tbl_emotions.emotion = 'sad' THEN 1 ELSE 0 END), 0) / 
+                COALESCE(SUM(CASE WHEN tbl_emotions.emotion IN ('angry', 'happy', 'sad') THEN 1 ELSE 0 END), 1)) * 100 AS sad_percentage 
+            FROM 
+                (SELECT {$current_date} AS {$date_type} FROM tbl_questions
+                UNION 
+                SELECT {$prev_date} UNION SELECT {$prev2_date}) {$date_type}s 
+            LEFT JOIN 
+                tbl_emotions
+            ON 
+                {$date_type}(tbl_emotions.date) = {$date_type}s.{$date_type}
+                AND EXISTS (
+                    SELECT 1 
+                    FROM tbl_questions 
+                    WHERE tbl_questions.question_id = tbl_emotions.question_id
+                )
+            GROUP BY 
+                {$date_type}s.{$date_type} 
+            ORDER BY 
+                {$date_type}s.{$date_type} {$order_by};
+    		");
+	    }
+		
 		foreach ($query->result() as $row)
 		{
 			$angry_percentage = number_format(floatval($row->angry_percentage), 1);
@@ -290,6 +406,11 @@ class Administrator extends CI_Controller
 
 	public function dashboard()
 	{
+		// Check if the user is logged in
+		if (!$this->session->userdata('logged_in')) {
+			redirect('/');
+		}
+
 		$data['page'] = 'Dashboard';
 		$this->load->view('templates/header', $data);
 		$this->load->view('pages/dashboard');
@@ -533,6 +654,64 @@ class Administrator extends CI_Controller
 
 	}
 	
+	public function getunarchivedquestions($id){
+		header('Access-Control-Allow-Origin: *');
+
+		$this->db->where('question_group', $id);
+		$this->db->where('archived', 2);
+		$this->db->order_by('question_id', 'asc');
+		$res = $this->db->get('tbl_questions');
+		$data = array();
+		foreach ($res->result() as $row)
+		{
+			$emotion = $this->db->query("
+			SELECT emotion,
+			COUNT(*) AS emotion_count,
+			COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage
+			FROM tbl_emotions
+			WHERE question_id = $row->question_id
+			GROUP BY emotion;
+			");
+			$angry_percentage = 0.0;
+			$happy_percentage = 0.0;
+			$sad_percentage = 0.0;
+			$angry_count = 0;
+			$happy_count = 0;
+			$sad_count = 0;
+		    foreach ($emotion->result() as $emo) {
+		        if ($emo->emotion == "angry") {
+		            $angry_percentage = $emo->emotion_percentage;
+		            $angry_count = $emo->emotion_count;
+		        }
+	            else if ($emo->emotion == "happy") {
+	                $happy_percentage = $emo->emotion_percentage;
+	                $happy_count = $emo->emotion_count;
+	            }
+	            else if ($emo->emotion == "sad") {
+	                $sad_percentage = $emo->emotion_percentage;
+	                $sad_count = $emo->emotion_count;
+	            }
+		    }
+			array_push($data,array(
+				'question_id'=> $row->question_id,
+				'question_text'=> $row->question_text,
+				'question_group'=> $row->question_group,
+				'question_color'=> $row->question_color,
+				'comment'=> "",
+				'emotion_angry'=> $angry_percentage,
+				'emotion_happy'=> $happy_percentage,
+				'emotion_sad'=> $sad_percentage,
+				'emotion_angry_count'=> $angry_count,
+				'emotion_happy_count'=> $happy_count,
+				'emotion_sad_count'=> $sad_count,
+			));
+		}
+
+
+		$this->output->set_content_type('application/json')->set_output(json_encode($data));
+
+	}
+	
 	public function archivequestion() {
         $question_id = $this->input->post("question_id");
     
@@ -552,17 +731,44 @@ class Administrator extends CI_Controller
         }
     }
     
-    public function getarchivequestion() {
+    public function unarchivequestion() {
+        $question_id = $this->input->post("qid");
+    
+        $data = array(
+            'archived' => 2
+        );
+    
+        $this->db->where('question_id', $question_id);
+        $this->db->update('tbl_questions', $data);
+        
+        
+    
+        if ($this->db->affected_rows() > 0) {
+            $this->output->set_content_type('application/json')->set_output(json_encode(true));
+        } else {
+            $this->output->set_content_type('application/json')->set_output(json_encode(false));
+        }
+    }
+    
+    public function getarchivequestion($year, $question_group) {
       header('Access-Control-Allow-Origin: *');
       
+    //   $year_query = "";
+      
+    //   if ($year != 0)
+    //     $year_query = "AND YEAR(date) = '{$year}'";
+      
       $this->db->where('archived', 1);
-      $this->db->order_by('question_id', 'asc');
-      $res = $this->db->get('tbl_questions');
+      if ($year != 0) $this->db->where('YEAR(created_date)', intval($year));
+      if ($question_group != 0) $this->db->where('question_group', $question_group);
+      $this->db->order_by('tbl_questions.question_id', 'asc');
+      $this->db->from('tbl_questions');
+      $res = $this->db->get();
       $data = array();
       
       foreach ($res->result() as $row) {
         $emotion = $this->db->query("
-        SELECT emotion,
+        SELECT date, emotion,
         COUNT(*) AS emotion_count,
         COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as emotion_percentage
         FROM tbl_emotions
@@ -590,17 +796,17 @@ class Administrator extends CI_Controller
           }
         }
         array_push($data,array(
-          'question_id' => $row->question_id,
-          'question_text' => $row->question_text,
-          'question_group' => $row->question_group,
-          'question_color' => $row->question_color,
-          'comment' => "",
-          'emotion_angry' => $angry_percentage,
-          'emotion_happy' => $happy_percentage,
-          'emotion_sad' => $sad_percentage,
-          'emotion_angry_count' => $angry_count,
-          'emotion_happy_count' => $happy_count,
-          'emotion_sad_count' => $sad_count,
+            'question_id' => $row->question_id,
+            'question_text' => $row->question_text,
+            'question_group' => $row->question_group,
+            'question_color' => $row->question_color,
+            'comment' => "",
+            'emotion_angry' => $angry_percentage,
+            'emotion_happy' => $happy_percentage,
+            'emotion_sad' => $sad_percentage,
+            'emotion_angry_count' => $angry_count,
+            'emotion_happy_count' => $happy_count,
+            'emotion_sad_count' => $sad_count,
         ));
       }
       $this->output->set_content_type('application/json')->set_output(json_encode($data));
@@ -689,19 +895,37 @@ class Administrator extends CI_Controller
 	}
 
 
-	public function loginCheck(){
-		$userdata = file_get_contents("php://input");
-		$data = json_decode($userdata,true);
+	public function loginCheck() {
+		// $userdata = file_get_contents("php://input");
+		// $data = json_decode($userdata,true);
 
+		// $this->db->where('email', $data['email']);
+		// $this->db->where('pass', sha1($data['password']));
+		// $res = $this->db->get('tbl_users');
+		// if($res->num_rows() == 1) {
+		// 	$this->output->set_content_type('application/json')->set_output(json_encode($res->row_array()));
+		// } else {
+		// 	$this->output->set_content_type('application/json')->set_output(json_encode(false));
+		// }
+		$userdata = file_get_contents("php://input");
+		$data = json_decode($userdata, true);
+	
 		$this->db->where('email', $data['email']);
 		$this->db->where('pass', sha1($data['password']));
 		$res = $this->db->get('tbl_users');
-		if($res->num_rows() == 1){
+	
+		if ($res->num_rows() == 1) {
+			// Set the user session data
+			$userdata = array(
+				'username' => $data['email'],
+				'logged_in' => true
+			);
+			$this->session->set_userdata($userdata);
+	
 			$this->output->set_content_type('application/json')->set_output(json_encode($res->row_array()));
-	}else{
-		$this->output->set_content_type('application/json')->set_output(json_encode(false));
-	}
-
+		} else {
+			$this->output->set_content_type('application/json')->set_output(json_encode(false));
+		}
 	}
 
 
@@ -743,17 +967,42 @@ class Administrator extends CI_Controller
 
 	public function logout()
 	{
+		// redirect('/');
+		// Clear the session data
+		$this->session->unset_userdata('logged_in');
+		$this->session->sess_destroy();
+	
+		// Redirect to the login page
 		redirect('/');
 	}
 
 	public function admin_login()
 	{
+		// $uname = $this->input->post('uname');
+		// $pass = $this->input->post('pass');
+
+		// if ($uname == 'admin' && $pass == 'admin123') {
+		// 	$this->session->set_flashdata('message', 'Login Successfully!');
+
+		// 	redirect('dashboard');
+		// } else {
+		// 	$this->session->set_flashdata('message', 'Login Credentials are invalid! Please contact the administrator!');
+		// 	redirect('/');
+		// }
+
 		$uname = $this->input->post('uname');
 		$pass = $this->input->post('pass');
 
+		// Perform authentication against the database
 		if ($uname == 'admin' && $pass == 'admin123') {
-			$this->session->set_flashdata('message', 'Login Successfully!');
+			// Set the user session data
+			$userdata = array(
+				'username' => $uname,
+				'logged_in' => true
+			);
+			$this->session->set_userdata($userdata);
 
+			$this->session->set_flashdata('message', 'Login Successfully!');
 			redirect('dashboard');
 		} else {
 			$this->session->set_flashdata('message', 'Login Credentials are invalid! Please contact the administrator!');

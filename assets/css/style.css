@@ -21519,12 +21519,12 @@ input[type="checkbox"]:checked:after {
   display: block;
   content: "\f00c";
   font-family: 'FontAwesome';
-  color: #fff;
+  color: black;
   font-weight: 100;
   font-size: 12px;
   text-align: center;
   border-radius: 3px;
-  background: #450b5a; }
+  background: #d4d7da; }
 
 .form-check-label {
   margin-left: 5px;

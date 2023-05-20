@@ -1,6 +1,7 @@
 $(document).ready(function(){
 
-    const base_url = "https://caringstore.xyz/";
+    // const base_url = "https://caringstore.xyz/";
+    const base_url = "http://localhost/caring-store/";
     const COLORS = [
         {
           color : "primary",
@@ -29,6 +30,30 @@ $(document).ready(function(){
     const barChart_1 = document.getElementById("pie_overall").getContext('2d');
     //const bar_acc = document.getElementById("bar_acc").getContext('2d');
     const accq_bar = document.getElementById("accq_bar").getContext('2d');
+    const accq_bar_2 = document.getElementById("accq_bar_2").getContext('2d');
+    const accq_bar_3 = document.getElementById("accq_bar_3").getContext('2d');
+    
+    const loadYears = function () {
+        $.get(`${base_url}getyears`, function (response) {
+            response.forEach(response => {
+                var newOption = $('<option>', {
+                  value: response,
+                  text: response
+                });
+                $('#date-picker-2').append(newOption).selectpicker('refresh');
+            });
+            response.forEach(response => {
+                 var newOption = $('<option>', {
+                  value: response,
+                  text: response
+                });
+                $('#date-picker-3').append(newOption).selectpicker('refresh');
+            });
+            loadQAcc_2();
+            loadQAcc_3();
+        })
+    }
+    loadYears();
     
     const pie_overall = new Chart(barChart_1, {
         type: 'pie',
@@ -76,10 +101,23 @@ $(document).ready(function(){
     });
     
     $(document).ready(function() {
-      $("#string-picker").change(function() {
-        var selectedString = $("#string-picker option:selected").text();
+      $("#date-picker").change(function() {
         loadQAcc();
-        // alert("Selected string: " + selectedString);
+      });
+      $("#category-picker").change(function() {
+        loadQAcc();
+      });
+      $("#date-picker-2").change(function() {
+        loadQAcc_2();
+      });
+       $("#category-picker-2").change(function() {
+        loadQAcc_2();
+      });
+      $("#date-picker-3").change(function() {
+        loadQAcc_3();
+      });
+       $("#category-picker-3").change(function() {
+        loadQAcc_3();
       });
     });
 
@@ -155,31 +193,31 @@ $(document).ready(function(){
 
   const accqbar = new Chart(accq_bar, {
         type: 'bar',
-        data: {
-            defaultFontFamily: 'Poppins',
-            labels: ["2021", "2022", '2023'],
-            datasets: [
-                {
-                    label: 'Angry',
-                    data: [20, 20, 20],
-                    countData: [20, 20, 20],
-                    backgroundColor: 'red'
-                },
-                {
-                    label: 'Happy',
-                    data: [40, 40, 40],
-                    countData: [40, 40, 40],
-                    backgroundColor: 'green'
-                },
-                {
-                    label: 'Sad',
-                    data: [60, 60, 60],
-                    countData: [60, 60, 60],
-                    backgroundColor: 'blue'
-                }
-            ],
-            hoverOffset: 5
-        },
+        // data: {
+        //     defaultFontFamily: 'Poppins',
+        //     labels: ["2021", "2022", '2023'],
+        //     datasets: [
+        //         {
+        //             label: 'Angry',
+        //             data: [20, 20, 20],
+        //             countData: [20, 20, 20],
+        //             backgroundColor: 'red'
+        //         },
+        //         {
+        //             label: 'Happy',
+        //             data: [40, 40, 40],
+        //             countData: [40, 40, 40],
+        //             backgroundColor: 'green'
+        //         },
+        //         {
+        //             label: 'Sad',
+        //             data: [60, 60, 60],
+        //             countData: [60, 60, 60],
+        //             backgroundColor: 'blue'
+        //         }
+        //     ],
+        //     hoverOffset: 5
+        // },
         options: {
             responsive: true,
             maintainAspectRatio: true,
@@ -190,12 +228,11 @@ $(document).ready(function(){
                     steps: 5,
                     stepValue: 5,
                     max: 100
-                }
+                },
             },
-            responsive: false,
             plugins: {
                 legend: {
-                    position: 'top',
+                    position: 'bottom',
                 },
                 tooltip: {
                     enabled: false
@@ -223,14 +260,12 @@ $(document).ready(function(){
     });
 
 
-    //functions
-
-
     let loadQAcc = function () {
-        let selected = $("#string-picker option:selected").text();
+        let selected = $("#date-picker option:selected").val();
+        let category = $("#category-picker option:selected").val();
         let current_date = new Date();
 
-        $.get(`${base_url}getrecord/${selected}`, function (response) {
+        $.get(`${base_url}getrecord/${selected}/${category}`, function (response) {
             console.log(response);
 
             accqbar.data = {
@@ -268,6 +303,254 @@ $(document).ready(function(){
         })
     }
     loadQAcc();
+    
+    
+    
+    
+    
+    
+    
+    
+    const accqbar_2 = new Chart(accq_bar_2, {
+        type: 'bar',
+        // data: {
+        //     defaultFontFamily: 'Poppins',
+        //     labels: ["2021", "2022", '2023'],
+        //     datasets: [
+        //         {
+        //             label: 'Angry',
+        //             data: [20, 20, 20],
+        //             countData: [20, 20, 20],
+        //             backgroundColor: 'red'
+        //         },
+        //         {
+        //             label: 'Happy',
+        //             data: [40, 40, 40],
+        //             countData: [40, 40, 40],
+        //             backgroundColor: 'green'
+        //         },
+        //         {
+        //             label: 'Sad',
+        //             data: [60, 60, 60],
+        //             countData: [60, 60, 60],
+        //             backgroundColor: 'blue'
+        //         }
+        //     ],
+        //     hoverOffset: 5
+        // },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            indexAxis: 'y',
+
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    steps: 5,
+                    stepValue: 5,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    enabled: false
+                },
+                datalabels: {
+                    color: 'white',
+                    labels: {
+                        title: {
+                            font: {
+                                weight: 'bold',
+                                size: '15px'
+                            }
+                        }
+                    },
+                    formatter: function (value, context) {
+                        var dataset = context.dataset;
+                        var countData = dataset.countData[context.dataIndex];
+                        return value + '%' + '(' + countData + ')';
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+
+    });
+
+
+    let loadQAcc_2 = function () {
+        let selected = $("#date-picker-2 option:selected").text();
+        let category = $("#category-picker-2 option:selected").val();
+        let current_date = new Date();
+
+        $.get(`${base_url}getyearrecord/${selected}/${category}`, function (response) {
+            console.log(response);
+
+            accqbar_2.data = {
+                labels: [],
+                datasets: []
+            }
+            accqbar_2.update();
+
+            accqbar_2.data = {
+                defaultFontFamily: 'Poppins',
+                labels: [response[0].date],
+                datasets: [
+                    {
+                        label: 'Angry',
+                        data: [response[0].angry_percentage],
+                        countData: [response[0].angry],
+                        backgroundColor: '#f72b50'
+                    },
+                    {
+                        label: 'Happy',
+                        data: [response[0].happy_percentage],
+                        countData: [response[0].happy],
+                        backgroundColor: '#209f84'
+                    },
+                    {
+                        label: 'Sad',
+                        data: [response[0].sad_percentage],
+                        countData: [response[0].sad],
+                        backgroundColor: '#ff5c00'
+                    }
+                ],
+                hoverOffset: 5
+            }
+            accqbar_2.update();
+        })
+    }
+    
+    
+    
+    
+    
+    
+    const accqbar_3 = new Chart(accq_bar_3, {
+        type: 'bar',
+        // data: {
+        //     defaultFontFamily: 'Poppins',
+        //     labels: ["2021", "2022", '2023'],
+        //     datasets: [
+        //         {
+        //             label: 'Angry',
+        //             data: [20, 20, 20],
+        //             countData: [20, 20, 20],
+        //             backgroundColor: 'red'
+        //         },
+        //         {
+        //             label: 'Happy',
+        //             data: [40, 40, 40],
+        //             countData: [40, 40, 40],
+        //             backgroundColor: 'green'
+        //         },
+        //         {
+        //             label: 'Sad',
+        //             data: [60, 60, 60],
+        //             countData: [60, 60, 60],
+        //             backgroundColor: 'blue'
+        //         }
+        //     ],
+        //     hoverOffset: 5
+        // },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            indexAxis: 'y',
+
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    steps: 5,
+                    stepValue: 5,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    enabled: false
+                },
+                datalabels: {
+                    color: 'white',
+                    labels: {
+                        title: {
+                            font: {
+                                weight: 'bold',
+                                size: '15px'
+                            }
+                        }
+                    },
+                    formatter: function (value, context) {
+                        var dataset = context.dataset;
+                        var countData = dataset.countData[context.dataIndex];
+                        return value + '%' + '(' + countData + ')';
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+
+    });
+
+
+    let loadQAcc_3 = function () {
+        let selected = $("#date-picker-3 option:selected").val();
+        let category = $("#category-picker-3 option:selected").val();
+        let current_date = new Date();
+
+        $.get(`${base_url}getyearrecord/${selected}/${category}`, function (response) {
+            console.log(response);
+
+            accqbar_3.data = {
+                labels: [],
+                datasets: []
+            }
+            accqbar_3.update();
+
+            accqbar_3.data = {
+                defaultFontFamily: 'Poppins',
+                labels: [response[0].date],
+                datasets: [
+                    {
+                        label: 'Angry',
+                        data: [response[0].angry_percentage],
+                        countData: [response[0].angry],
+                        backgroundColor: '#f72b50'
+                    },
+                    {
+                        label: 'Happy',
+                        data: [response[0].happy_percentage],
+                        countData: [response[0].happy],
+                        backgroundColor: '#209f84'
+                    },
+                    {
+                        label: 'Sad',
+                        data: [response[0].sad_percentage],
+                        countData: [response[0].sad],
+                        backgroundColor: '#ff5c00'
+                    }
+                ],
+                hoverOffset: 5
+            }
+            accqbar_3.update();
+        })
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
 

@@ -141,7 +141,15 @@
                         <div class="card">
                             <div class="card-header bg-info d-flex justify-content-between align-items-center">
                                 <h4 class="card-title text-white">Questions List</h4>
-
+                                <div class="d-flex justify-items-center align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="checkAll" id="checkAll">
+                                        <label class="form-check-label" for="flexCheckDefault"></label>
+                                    </div>
+                                    <div class="alert-box">
+                                        <button type="button" id="archiveSelected" class="btn btn-sm btn-outline-light text-white">Archive</button>
+                                    </div>
+                                </div>
                             </div>
                             <input type="hidden" id="curr_qgroup" value="2">
                             <div class="card-body" id="question_box">
@@ -246,6 +254,44 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-12 col-xxl-12">
+                <div class="row">
+                    <!-- <div class="col-xl-12 col-xxl-12 col-lg-12 col-md-12"> -->
+
+
+
+                    <div class="col-xl-12 col-xxl-12 col-lg-12 col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-info d-flex justify-content-between align-items-center">
+                                <h4 class="card-title text-white">Retrieved Questions List</h4>
+                                <div class="d-flex justify-items-center align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="checkAll-2" id="checkAll-2">
+                                        <label class="form-check-label" for="flexCheckDefault"></label>
+                                    </div>
+                                    <div class="alert-box">
+                                        <button type="button" id="archiveSelected-2" class="btn btn-sm btn-outline-light text-white">Archive</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="curr_qgroup" value="2">
+                            <div class="card-body" id="question_box_unarchived">
+                           
+                                
+
+                                
+                              
+                               
+                               
+
+                            </div>
+                            <div class="card-footer d-sm-flex justify-content-center align-items-center">
                             </div>
                         </div>
                     </div>

@@ -28,6 +28,9 @@
 <!--**********************************
         Scripts
     ***********************************-->
+    
+<script src="<?php echo base_url('assets/'); ?>js/getyears.js"></script>
+    
 <!-- Required vendors -->
 <script src="<?php echo base_url('assets/'); ?>vendor/global/global.min.js"></script>
 <script src="<?php echo base_url('assets/'); ?>vendor/bootstrap-select/dist/js/bootstrap-select.min.js"></script>

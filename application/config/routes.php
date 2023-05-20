@@ -22,14 +22,20 @@ $route['logout'] = 'administrator/logout';
 
 //CRUD Questions
 $route['addquestion'] = 'administrator/addquestion';
+$route['unarchivequestion'] = 'administrator/unarchivequestion';
 $route['archivequestion'] = 'administrator/archivequestion';
-$route['getarchivequestion'] = 'administrator/getarchivequestion';
+$route['getarchivequestion/(:any)/(:any)'] = 'administrator/getarchivequestion/$1/$2';
 $route['getquestions/(:num)'] = 'administrator/getquestions/$1';
+$route['getunarchivedquestions/(:num)'] = 'administrator/getunarchivedquestions/$1';
 $route['editquestion'] = 'administrator/editquestion';
 $route['deletequestion'] = 'administrator/deletequestion';
 
 $route['getemotions/(:any)'] = 'administrator/getAllEmotions/$1';
-$route['getrecord/(:any)'] = 'administrator/getRecord/$1';
+// $route['getrecord/(:any)'] = 'administrator/getRecord/$1';
+$route['getrecord/(:any)/(:any)'] = 'administrator/getRecord/$1/$2';
+$route['getyearrecord/(:any)/(:any)'] = 'administrator/getYearRecord/$1/$2';
+$route['getyears'] = 'administrator/getYears';
+$route['getarchivedquestionsyears'] = 'administrator/getArchivedQuestionsYear';
 $route['getacc'] = 'administrator/getAccEmotions';
 $route['getem'] = 'administrator/getEmEmotions';
 $route['getres'] = 'administrator/getResEmotions';

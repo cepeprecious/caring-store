@@ -1,6 +1,7 @@
 $(document).ready(function(){
 
-    const base_url = "https://caringstore.xyz/";
+    // const base_url = "https://caringstore.xyz/";
+    const base_url = "http://localhost/caring-store/";
     const COLORS = [
         {
           color : "primary",
@@ -133,7 +134,7 @@ $(document).ready(function(){
                   max: 100
                 }
               },
-            responsive: false,
+            responsive: true,
             plugins : {
                 legend: {
                     display: false

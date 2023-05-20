@@ -1,7 +1,7 @@
 <!--**********************************
             Sidebar start
         ***********************************-->
-<div class="deznav">
+        <div class="deznav">
     <div class="deznav-scroll">
         <ul class="metismenu" id="menu">
             <li class=""><a class="" href="<?php echo base_url('/dashboard'); ?>" aria-expanded="false">
@@ -10,15 +10,15 @@
                 </a>
 
             </li>
-            <li class="mm-active"><a class="" href="<?php echo base_url('/accessibility'); ?>" aria-expanded="false">
+            <li class=""><a class="" href="<?php echo base_url('/accessibility'); ?>" aria-expanded="false">
                     <i class="flaticon-381-enter"></i>
-                    <span class="nav-text">Product Quality </span>
+                    <span class="nav-text">Product Quality</span>
                 </a>
 
             </li>
             <li class=""><a class="" href="<?php echo base_url('/empathy'); ?>" aria-expanded="false">
                     <i class="flaticon-381-heart"></i>
-                    <span class="nav-text">Service Quality </span>
+                    <span class="nav-text">Service Quality</span>
                 </a>
 
             </li>
@@ -103,13 +103,13 @@
 
 
                 </div>
-                
+              
 
             </div>
             <div class="col-xl-12 col-lg-12 col-sm-12 col-xxl-12">
                 <div class="card">
                     <div class="card-header bg-info d-flex justify-content-between align-items-center py-4 px-4">
-                        <h4 class="card-title text-white">Product Quality Stats</h4>
+                        <h4 class="card-title text-white">Engagement</h4>
                         <!-- <button class="btn text-white" id="toggle_acc">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -123,8 +123,8 @@
                     </div>
                     <div id="acc_stat" class="collapse show">
                     <div class="card-body d-flex justify-content-center align-items-center">
-						<canvas id="bar_acc" style="width:100%;"></canvas>
-				    </div>
+							<canvas id="lpq_bar" style="width:100%;"></canvas>
+					    </div>
                 </div>
                     <div class="card-footer">
                        
@@ -151,9 +151,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <input type="hidden" id="curr_qgroup" value="1">
+                            <input type="hidden" id="curr_qgroup" value="4">
                             <div class="card-body" id="question_box">
-                           
+                            
+                                
                                 
 
                                 
@@ -181,7 +182,7 @@
                                                         <div class="row">
                                                             <div class="col-xl-12">
                                                                 <div class="form-group row">
-                                                                    <input type="hidden" id="qgroup" value="1">
+                                                                    <input type="hidden" id="qgroup" value="4">
                                                                     <label class="col-sm-3 col-form-label">Question Text: </label>
                                                                     <div class="col-sm-9">
                                                                         <textarea rows="5" id="qtext" class="form-control"></textarea>
@@ -224,7 +225,7 @@
                                                         <div class="row">
                                                             <div class="col-xl-12">
                                                                 <div class="form-group row">
-                                                                    <input type="hidden" id="qgroup" value="1">
+                                                                    <input type="hidden" id="qgroup" value="4">
                                                                     <input type="hidden" id="qid">
                                                                     <label class="col-sm-3 col-form-label">Question Text: </label>
                                                                     <div class="col-sm-9">
@@ -253,44 +254,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-xl-12 col-xxl-12">
-                <div class="row">
-                    <!-- <div class="col-xl-12 col-xxl-12 col-lg-12 col-md-12"> -->
-
-
-
-                    <div class="col-xl-12 col-xxl-12 col-lg-12 col-md-12">
-                        <div class="card">
-                            <div class="card-header bg-info d-flex justify-content-between align-items-center">
-                                <h4 class="card-title text-white">Retrieved Questions List</h4>
-                                <div class="d-flex justify-items-center align-items-center">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="checkAll-2" id="checkAll-2">
-                                        <label class="form-check-label" for="flexCheckDefault"></label>
-                                    </div>
-                                    <div class="alert-box">
-                                        <button type="button" id="archiveSelected-2" class="btn btn-sm btn-outline-light text-white">Archive</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="hidden" id="curr_qgroup" value="1">
-                            <div class="card-body" id="question_box_unarchived">
-                           
-                                
-
-                                
-                              
-                               
-                               
-
-                            </div>
-                            <div class="card-footer d-sm-flex justify-content-center align-items-center">
                             </div>
                         </div>
                     </div>

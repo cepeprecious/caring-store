@@ -1,7 +1,18 @@
 $(document).ready(function(){
-let base_url = "https://caringstore.xyz/";
+// let base_url = "https://caringstore.xyz/";
+let base_url = "http://localhost/caring-store/";
+const color = ['#ff5c00', '#450b5a', '#209f84', '#2781d5'];
 
 //connect socket
+
+$(document).ready(function() {
+    $("#archive-year-picker").change(function() {
+        loadArchive();
+    });
+    $("#archive-category-picker").change(function() {
+        loadArchive();
+    });
+});
 
 const tbl_cat = $('#tbl_cat').DataTable({ 
 	"pagingType": "full_numbers",
@@ -176,17 +187,36 @@ const tbl_sr = $('#example2').DataTable({
 
 //end load scans
 
+const loadYears = function () {
+    $.get(`${base_url}getarchivedquestionsyears`, function (response) {
+        response.forEach(response => {
+            var newOption = $('<option>', {
+              value: response,
+              text: response
+            });
+            console.log($('#archive-year-picker').append(newOption).selectpicker('refresh'));
+            console.log(response);
+        });
+        
+    })
+}
+loadYears();
+
 //load archive questions
 let loadArchive = function() {
   $("#archive_box").empty();
   //load
   let qgroup = $('#curr_qgroup').val();
+  let year = $('#archive-year-picker option:selected').val();
+  let question_group = $('#archive-category-picker option:selected').val();
 
   console.log(qgroup);
+  console.log(year);
+  console.log(question_group);
   
   
   
-  $.get(`${base_url}getarchivequestion`,function(response){
+  $.get(`${base_url}getarchivequestion/${year}/${question_group}`,function(response){
 
    if(response.length == 0){
     $("#archive_box").append(`<div class="alert alert-danger left-icon-big  fade show">
@@ -208,24 +238,31 @@ return;
    
   
   $.each(response,function(i,key){
-       $("#archive_box").append(`
-       <div class="alert alert-${getColor(key.question_color)} solid alert-dismissible fade show d-flex justify-content-between align-items-center">
+        $("#archive_box").append(`
+        <div class="alert alert-${getColor(color[key.question_group - 1])} solid alert-dismissible fade show d-flex justify-content-between align-items-center">
             <div>
                 <button type="button" data-toggle="collapse" href="#question_stat" aria-expanded="true" aria-controls="acc_stat" class="btn btn-sm text-white" qid="${key.question_id}">
                     <i class="fa fa-chevron-down"></i>
                 </button>
             </div>
-            <div style="margin-right: auto; margin-left: 20px;"> <strong>${a}.  </strong> ${key.question_text}</div>
+            <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+                <div> <strong>${a}.  </strong> ${key.question_text}</div>
+                <div class="form-check">
+                    <input class="form-check-input" name="question" type="checkbox" value="${key.question_id}" id="question">
+                    <label class="form-check-label" for="flexCheckDefault"></label>
+                </div>
+            </div>
+            
         </div>
         
         <div id="question_stat" class="collapse show">
             <div class="card-body d-flex justify-content-center align-items-center" qtext="${key.question_text}" qid="${key.question_id}">
-				<canvas id="question-graph-${key.question_id}" style="width:100%;"></canvas>
-		    </div>
+        		<canvas id="question-graph-${key.question_id}" style="width:100%;"></canvas>
+            </div>
         </div>
-       `).hide().slideDown();
-      
-      a++;
+        `).hide().slideDown();
+        
+        a++;
       
         const accq_bar = document.getElementById("question-graph-" + key.question_id).getContext('2d');
         const angry = Number(key.emotion_angry).toFixed(1);
@@ -291,6 +328,11 @@ return;
         });
     });
     
+    $('#question').click(function() {
+        console.log('Clicked');
+        $('#checkAll').prop('checked', false);
+    });
+    
   });
   
    //end lod
@@ -298,6 +340,15 @@ return;
 
 
   loadArchive();
+  
+  
+$('#checkAll').click(function() {
+    if ($(this).prop('checked') === true) {
+    $('input[name="question"]').prop('checked', true);
+    } else {
+    $('input[name="question"]').prop('checked', false);
+    }
+});
 
 //load questions
 let loadQuestions = function() {
@@ -335,18 +386,28 @@ return;
   
   $.each(response,function(i,key){
        $("#question_box").append(`
-       <div class="alert alert-${getColor(key.question_color)} solid alert-dismissible fade show d-flex justify-content-between align-items-center">
+       <div class="alert alert-${getColor(color[key.question_group - 1])} solid alert-dismissible fade show d-flex justify-content-between align-items-center">
+       
             <div>
                 <button type="button" data-toggle="collapse" href="#question_stat" aria-expanded="true" aria-controls="acc_stat" class="btn btn-sm text-white" qid="${key.question_id}">
                     <i class="fa fa-chevron-down"></i>
                 </button>
             </div>
+            
             <div style="margin-right: auto; margin-left: 20px;"> <strong>${a}.  </strong> ${key.question_text}</div>
-            <div class="alert-box">
-                <button type="button" class="btn btn-sm btn-outline-light text-white archive" id="archive-${key.question_id}" qid="${key.question_id}">
-                    Archive
-                </button>
+            
+            <div class="flex-grow-1 d-flex justify-content-end align-items-center">
+                <div class="form-check">
+                    <input class="form-check-input" name="question" type="checkbox" value="${key.question_id}" id="question">
+                    <label class="form-check-label" for="flexCheckDefault"></label>
+                </div>
+                <div class="alert-box">
+                    <button type="button" class="btn btn-sm btn-outline-light text-white archive" id="archive-${key.question_id}" qid="${key.question_id}">
+                        Archive
+                    </button>
+                </div>
             </div>
+            
         </div>
         
         <div id="question_stat" class="collapse show">
@@ -491,6 +552,11 @@ return;
             }
           });
         });
+        
+        $('#question').click(function() {
+            console.log('Clicked');
+            $('#checkAll').prop('checked', false);
+        });
 
     });
     
@@ -508,6 +574,435 @@ return;
 
 
 //load questions
+
+$('#checkAll').click(function() {
+    if ($(this).prop('checked') === true) {
+    $('input[name="question"]').prop('checked', true);
+    } else {
+    $('input[name="question"]').prop('checked', false);
+    }
+});
+
+
+let loadUnarchivedQuestions = function() {
+  $("#question_box_unarchived").empty();
+  //load
+  let qgroup = $('#curr_qgroup').val();
+
+  console.log(qgroup);
+  
+  
+  
+  $.get(`${base_url}getunarchivedquestions/${qgroup}`,function(response){
+      
+      console.log(response);
+
+   if(response.length == 0){
+    $("#question_box_unarchived").append(`<div class="alert alert-danger left-icon-big  fade show">
+    
+    <div class="media">
+        <div class="alert-left-icon-big">
+            <span><i class="mdi mdi-alert"></i></span>
+        </div>
+        <div class="media-body">
+            <h5 class="mt-1 mb-2">No Questions for this Category!</h5>
+            <p class="mb-0">Please add some questions!!</p>
+        </div>
+    </div>
+</div>`);
+
+return;
+   }
+    
+   var a = 1;
+   
+  
+  $.each(response,function(i,key){
+       $("#question_box_unarchived").append(`
+       <div class="alert alert-${getColor(color[key.question_group - 1])} solid alert-dismissible fade show d-flex justify-content-between align-items-center">
+       
+            <div>
+                <button type="button" data-toggle="collapse" href="#question_stat" aria-expanded="true" aria-controls="acc_stat" class="btn btn-sm text-white" qid="${key.question_id}">
+                    <i class="fa fa-chevron-down"></i>
+                </button>
+            </div>
+            
+            <div style="margin-right: auto; margin-left: 20px;"> <strong>${a}.  </strong> ${key.question_text}</div>
+            
+            <div class="flex-grow-1 d-flex justify-content-end align-items-center">
+                <div class="form-check">
+                    <input class="form-check-input" name="question-2" type="checkbox" value="${key.question_id}" id="question-2">
+                    <label class="form-check-label" for="flexCheckDefault"></label>
+                </div>
+                <div class="alert-box">
+                    <button type="button" class="btn btn-sm btn-outline-light text-white archive" id="archive-${key.question_id}" qid="${key.question_id}">
+                        Archive
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div id="question_stat" class="collapse show">
+            <div class="card-body d-flex justify-content-center align-items-center" qtext="${key.question_text}" qid="${key.question_id}">
+				<canvas id="question-graph-unarchived-${key.question_id}" style="width:100%;"></canvas>
+		    </div>
+        </div>
+       `).hide().slideDown();
+      
+      a++;
+      
+        const accq_bar = document.getElementById("question-graph-unarchived-" + key.question_id).getContext('2d');
+        const angry = Number(key.emotion_angry).toFixed(1);
+        const happy = Number(key.emotion_happy).toFixed(1);
+        const sad = Number(key.emotion_sad).toFixed(1);
+        const angry_count = Number(key.emotion_angry_count).toFixed(1);
+        const happy_count = Number(key.emotion_happy_count).toFixed(1);
+        const sad_count = Number(key.emotion_sad_count).toFixed(1);
+
+        const accqbar = new Chart(accq_bar, {
+          type: 'bar',
+          data: {
+            defaultFontFamily: 'Poppins',
+            labels: ['ANGRY', 'HAPPY', 'SAD'],
+            datasets: [
+                {
+                    data: [angry, happy, sad],
+                    borderWidth: "0",
+                    backgroundColor: ['#f72b50', '#209f84', '#ff5c00'],
+                    countData: [angry_count, happy_count, sad_count]  // this is the emotion count data from the database
+                },
+            ],
+            hoverOffset: 5
+          },
+          options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    steps: 5,
+                    stepValue: 5,
+                    max: 100
+                  }
+                },
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                enabled: false
+              },
+              datalabels: {
+                color: 'white',
+                labels: {
+                  title: {
+                    font: {
+                      weight: 'bold',
+                      size: '15px'
+                    }
+                  }
+                },
+                formatter: function(value, context) {
+                    var dataset = context.dataset;
+                    var countData = dataset.countData[context.dataIndex];
+                    return value + '%' + ' (' + countData + ')';
+                },
+              }
+            }
+          },
+          plugins: [ChartDataLabels]
+
+        });
+        
+        $('#archive-' + key.question_id).click(() => {
+          var question_id = key.question_id;
+        
+          Swal.fire({
+            title: 'Archive Question?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            allowOutsideClick: false
+          }).then((result) => {
+            if (result.value) {
+              $.ajax({
+                type: "POST",
+                url: `${base_url}archivequestion`,
+                data: {question_id: question_id},
+                dataType: "json",
+                success: function(response) {
+                  if (response.success) {
+                    //hide the archived question from the UI
+                    $(`[qid=${question_id}]`).parents('.alert').hide();
+                    // show the success notification
+                    Swal.fire({
+                      title: `Question Archived!`,
+                      icon: "success",
+                      timer: 2000
+                    });
+                    loadUnarchivedQuestions();
+                  } else {
+                    // show the error message
+                    Swal.fire({
+                      title: `Question Archived!`,
+                      icon: 'success',
+                      timer: 2000
+                    });
+                    loadUnarchivedQuestions();
+                  }
+                }
+              });
+            }
+          });
+        });
+        
+        $('#question-2').click(function() {
+            console.log('Clicked');
+            $('#checkAll-2').prop('checked', false);
+        });
+
+    });
+    
+  });
+  
+  
+  
+  
+  
+   //end lod
+  };
+
+
+  loadUnarchivedQuestions();
+  
+  
+$('#checkAll-2').click(function() {
+    if ($(this).prop('checked') === true) {
+    $('input[name="question-2"]').prop('checked', true);
+    } else {
+    $('input[name="question-2"]').prop('checked', false);
+    }
+});
+
+
+// unarchive
+$("#unarchive").click(()=>{
+    let qidArray = [];
+    $('input[name="question"]').each(function() {
+        if ($(this).is(':checked')) {
+            let qid = $(this).val();
+            qidArray.push(` ${qid}`);
+        }
+    });
+    console.log(qidArray.length);
+    if (qidArray.length == 0) {
+        Swal.fire({
+            title: `Please first select a question to remove from the archive.`,
+            icon: "warning",
+        })
+        return;
+    }
+    Swal.fire({
+        title: `Retrieve Question?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes',
+        allowOutsideClick: false
+    }).then((result) => {
+        console.log('test');
+        /* Read more about isConfirmed, isDenied below */
+        if (result.value) {
+            
+            $('input[name="question"]').each(function() {
+                if ($(this).is(':checked')) {
+                    let qid = $(this).val();
+                    $.post(`${base_url}unarchivequestion`,{qid:qid},(res)=>{
+                        if(res){
+                            // Empty
+                        }
+                    });
+                    if (qidArray.length <= 1) {
+                        Swal.fire({
+                            title: `${qidArray.length} Question  Unarchived!`,
+                            icon: "success",
+                            allowOutsideClick: false
+                        })
+                    } else {
+                        Swal.fire({
+                            title: `${qidArray.length} Question's  Unarchived!`,
+                            icon: "success",
+                            allowOutsideClick: false
+                        })
+                    }
+                   
+                }
+                
+            });
+            $('#checkAll').prop('checked', false);
+            setTimeout(function() {
+                loadArchive();
+            }, 1000);
+        }
+    });
+    
+})
+
+$("#archiveSelected").click(()=>{
+    let qidArray = [];
+    $('input[name="question"]').each(function() {
+        if ($(this).is(':checked')) {
+            let qid = $(this).val();
+            qidArray.push(` ${qid}`);
+        }
+    });
+    console.log(qidArray.length);
+    if (qidArray.length == 0) {
+        Swal.fire({
+            title: `Please first select a question to remove from the archive.`,
+            icon: "warning",
+        })
+        return;
+    }
+    Swal.fire({
+        title: `Archive Question?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes',
+        allowOutsideClick: false
+    }).then((result) => {
+        console.log('test');
+        /* Read more about isConfirmed, isDenied below */
+        if (result.value) {
+            
+            $('input[name="question"]').each(function() {
+                if ($(this).is(':checked')) {
+                    let qid = $(this).val();
+                    
+                    // $.post(`${base_url}unarchivequestion`,{qid:qid},(res)=>{
+                    //     if(res){
+                    //         // Empty
+                    //     }
+                    // });
+                    
+                    $.ajax({
+                        type: "POST",
+                        url: `${base_url}archivequestion`,
+                        data: {question_id: qid},
+                        dataType: "json",
+                        success: function(response) {
+                          // Empty
+                        }
+                    });
+                    
+                    if (qidArray.length <= 1) {
+                        Swal.fire({
+                            title: `${qidArray.length} Question  Archived!`,
+                            icon: "success",
+                            allowOutsideClick: false
+                        })
+                    } else {
+                        Swal.fire({
+                            title: `${qidArray.length} Question's  Archived!`,
+                            icon: "success",
+                            allowOutsideClick: false
+                        })
+                    }
+                   
+                }
+                
+            });
+            
+            $('#checkAll').prop('checked', false);
+            setTimeout(function() {
+                loadQuestions();
+            }, 1000);
+        }
+    });
+    
+})
+
+$("#archiveSelected-2").click(()=>{
+    let qidArray = [];
+    $('input[name="question-2"]').each(function() {
+        if ($(this).is(':checked')) {
+            let qid = $(this).val();
+            qidArray.push(` ${qid}`);
+        }
+    });
+    console.log(qidArray.length);
+    if (qidArray.length == 0) {
+        Swal.fire({
+            title: `Please first select a question to remove from the archive.`,
+            icon: "warning",
+        })
+        return;
+    }
+    Swal.fire({
+        title: `Archive Question?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes',
+        allowOutsideClick: false
+    }).then((result) => {
+        console.log('test');
+        /* Read more about isConfirmed, isDenied below */
+        if (result.value) {
+            
+            $('input[name="question-2"]').each(function() {
+                if ($(this).is(':checked')) {
+                    let qid = $(this).val();
+                    
+                    // $.post(`${base_url}unarchivequestion`,{qid:qid},(res)=>{
+                    //     if(res){
+                    //         // Empty
+                    //     }
+                    // });
+                    
+                    $.ajax({
+                        type: "POST",
+                        url: `${base_url}archivequestion`,
+                        data: {question_id: qid},
+                        dataType: "json",
+                        success: function(response) {
+                          // Empty
+                        }
+                    });
+                    
+                    if (qidArray.length <= 1) {
+                        Swal.fire({
+                            title: `${qidArray.length} Question  Archived!`,
+                            icon: "success",
+                            allowOutsideClick: false
+                        })
+                    } else {
+                        Swal.fire({
+                            title: `${qidArray.length} Question's  Archived!`,
+                            icon: "success",
+                            allowOutsideClick: false
+                        })
+                    }
+                   
+                }
+                
+            });
+            
+            $('#checkAll-2').prop('checked', false);
+            setTimeout(function() {
+                loadUnarchivedQuestions();
+            }, 1000);
+        }
+    });
+    
+})
 
 
 //add question
